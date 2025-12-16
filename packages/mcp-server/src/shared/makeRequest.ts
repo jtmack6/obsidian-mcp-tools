@@ -1,6 +1,6 @@
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 import { type, type Type } from "arktype";
-import { logger } from "./logger";
+import { logger } from "./logger.ts";
 
 // Default to HTTPS port, fallback to HTTP if specified
 const USE_HTTP = process.env.OBSIDIAN_USE_HTTP === "true";

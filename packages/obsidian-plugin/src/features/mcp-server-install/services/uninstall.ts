@@ -5,6 +5,7 @@ import path from "path";
 import { BINARY_NAME } from "../constants";
 import { getPlatform } from "./install";
 import { getFileSystemAdapter } from "../utils/getFileSystemAdapter";
+import { removeFromClaudeConfig } from "./config";
 
 /**
  * Uninstalls the MCP server by removing the binary and cleaning up configuration
@@ -48,27 +49,12 @@ export async function uninstallServer(plugin: Plugin): Promise<void> {
       // Directory not empty, leave it
     }
 
-    // Remove our entry from Claude config
-    // Note: We don't remove the entire config file since it may contain other server configs
-    const configPath = path.join(
-      process.env.HOME || process.env.USERPROFILE || "",
-      "Library/Application Support/Claude/claude_desktop_config.json",
-    );
-
+    // Remove our entry from Claude config using the platform-aware function
     try {
-      const content = await fsp.readFile(configPath, "utf8");
-      const config = JSON.parse(content);
-
-      if (config.mcpServers && config.mcpServers["obsidian-mcp-tools"]) {
-        delete config.mcpServers["obsidian-mcp-tools"];
-        await fsp.writeFile(configPath, JSON.stringify(config, null, 2));
-        logger.info("Removed server from Claude config", { configPath });
-      }
+      await removeFromClaudeConfig();
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-        throw error;
-      }
-      // Config doesn't exist, nothing to clean up
+      // Log but don't fail if config removal fails
+      logger.warn("Failed to remove from Claude config:", { error });
     }
 
     logger.info("Server uninstall complete");

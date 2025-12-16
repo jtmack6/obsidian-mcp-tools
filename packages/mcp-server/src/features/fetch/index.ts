@@ -1,9 +1,9 @@
-import { logger, type ToolRegistry } from "$/shared";
+import { logger, type ToolRegistry } from "$/shared/index.ts";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 import { type } from "arktype";
-import { DEFAULT_USER_AGENT } from "./constants";
-import { convertHtmlToMarkdown } from "./services/markdown";
+import { DEFAULT_USER_AGENT } from "./constants.ts";
+import { convertHtmlToMarkdown } from "./services/markdown.ts";
 
 export function registerFetchTool(tools: ToolRegistry, server: Server) {
   tools.register(

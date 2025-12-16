@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "deno.ns"],
+    "strict": true,
+    "noErrorTruncation": true,
+    "types": ["@types/node"]
+  },
+  "imports": {
+    "$/": "./src/",
+    "shared": "../shared/src/index.ts",
+    "@modelcontextprotocol/sdk/": "npm:/@modelcontextprotocol/sdk@1.0.4/",
+    "arktype": "npm:arktype@2.0.0-rc.30",
+    "radash": "npm:radash@12.1.0",
+    "turndown": "npm:turndown@7.2.0",
+    "acorn": "npm:acorn@8.14.0",
+    "acorn-walk": "npm:acorn-walk@8.3.4",
+    "zod": "npm:zod@3.24.1",
+    "obsidian": "npm:obsidian@latest"
+  },
+  "tasks": {
+    "dev": "deno run --watch --allow-env --allow-read --allow-write --allow-net --allow-sys src/index.ts",
+    "build": "deno compile --no-check --allow-env --allow-read --allow-write --allow-net --allow-sys --output dist/mcp-server-freebsd src/index.ts",
+    "check": "deno check src/index.ts"
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}

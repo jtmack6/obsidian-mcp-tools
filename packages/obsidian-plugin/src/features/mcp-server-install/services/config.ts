@@ -32,6 +32,9 @@ function getConfigPath(): string {
     case "win32":
       configPath = CLAUDE_CONFIG_PATH.windows;
       break;
+    case "freebsd":
+      configPath = CLAUDE_CONFIG_PATH.freebsd;
+      break;
     default:
       configPath = CLAUDE_CONFIG_PATH.linux;
   }

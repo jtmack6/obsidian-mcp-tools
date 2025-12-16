@@ -1,4 +1,4 @@
-import { logger } from "$/shared";
+import { logger } from "$/shared/index.ts";
 import TurndownService from "turndown";
 
 /**

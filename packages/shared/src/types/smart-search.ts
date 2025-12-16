@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { SmartConnections } from "shared";
+import * as SmartConnections from "./plugin-smart-connections.ts";
 
 const searchRequest = type({
   query: type("string>0").describe("A search phrase for semantic search"),

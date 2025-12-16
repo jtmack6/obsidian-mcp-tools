@@ -2,7 +2,7 @@ import { parse } from "acorn";
 import { simple } from "acorn-walk";
 import { type } from "arktype";
 import type { PromptParameter } from "shared";
-import { logger } from "./logger";
+import { logger } from "./logger.ts";
 
 const CallExpressionSchema = type({
   callee: {

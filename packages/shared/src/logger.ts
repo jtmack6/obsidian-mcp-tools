@@ -1,8 +1,8 @@
 import { type } from "arktype";
-import { existsSync, mkdirSync } from "fs";
-import { appendFile } from "fs/promises";
-import { homedir, platform } from "os";
-import { dirname, resolve } from "path";
+import { existsSync, mkdirSync } from "node:fs";
+import { appendFile } from "node:fs/promises";
+import { homedir, platform } from "node:os";
+import { dirname, resolve } from "node:path";
 
 /**
  * Determines the appropriate log directory path based on the current operating system.
@@ -19,6 +19,7 @@ export function getLogFilePath(appName: string, fileName: string) {
       return resolve(homedir(), "AppData", "Local", "Logs", appName, fileName);
 
     case "linux": // Linux
+    case "freebsd": // FreeBSD
       return resolve(homedir(), ".local", "share", "logs", appName, fileName);
 
     default:

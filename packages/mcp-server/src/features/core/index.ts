@@ -1,11 +1,11 @@
-import { logger, type ToolRegistry, ToolRegistryClass } from "$/shared";
+import { logger, type ToolRegistry, ToolRegistryClass } from "$/shared/index.ts";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { registerFetchTool } from "../fetch";
-import { registerLocalRestApiTools } from "../local-rest-api";
-import { setupObsidianPrompts } from "../prompts";
-import { registerSmartConnectionsTools } from "../smart-connections";
-import { registerTemplaterTools } from "../templates";
+import { registerFetchTool } from "../fetch/index.ts";
+import { registerLocalRestApiTools } from "../local-rest-api/index.ts";
+import { setupObsidianPrompts } from "../prompts/index.ts";
+import { registerSmartConnectionsTools } from "../smart-connections/index.ts";
+import { registerTemplaterTools } from "../templates/index.ts";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,

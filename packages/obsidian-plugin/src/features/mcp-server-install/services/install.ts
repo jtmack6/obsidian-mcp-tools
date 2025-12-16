@@ -16,6 +16,8 @@ export function getPlatform(): Platform {
       return "macos";
     case "win32":
       return "windows";
+    case "freebsd":
+      return "freebsd";
     default:
       return "linux";
   }
@@ -30,6 +32,8 @@ export function getDownloadUrl(platform: Platform, arch: Arch): string {
     return `${GITHUB_DOWNLOAD_URL}/mcp-server-windows.exe`;
   } else if (platform === "macos") {
     return `${GITHUB_DOWNLOAD_URL}/mcp-server-macos-${arch}`;
+  } else if (platform === "freebsd") {
+    return `${GITHUB_DOWNLOAD_URL}/mcp-server-freebsd`;
   } else { // linux
     return `${GITHUB_DOWNLOAD_URL}/mcp-server-linux`;  // Linux binary doesn't include arch in filename
   }

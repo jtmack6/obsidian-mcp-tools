@@ -1,7 +1,7 @@
-#!/usr/bin/env bun
-import { logger } from "$/shared";
-import { ObsidianMcpServer } from "./features/core";
-import { getVersion } from "./features/version" with { type: "macro" };
+#!/usr/bin/env -S deno run --allow-env --allow-read --allow-write --allow-net
+import { logger } from "$/shared/index.ts";
+import { ObsidianMcpServer } from "./features/core/index.ts";
+import { getVersion } from "./features/version/index.ts";
 
 async function main() {
   try {

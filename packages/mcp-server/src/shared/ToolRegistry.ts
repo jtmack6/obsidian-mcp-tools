@@ -5,8 +5,8 @@ import {
   type Result,
 } from "@modelcontextprotocol/sdk/types.js";
 import { type, type Type } from "arktype";
-import { formatMcpError } from "./formatMcpError.js";
-import { logger } from "./logger.js";
+import { formatMcpError } from "./formatMcpError.ts";
+import { logger } from "./logger.ts";
 
 interface HandlerContext {
   server: Server;

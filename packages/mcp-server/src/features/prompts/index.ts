@@ -3,7 +3,7 @@ import {
   logger,
   makeRequest,
   parseTemplateParameters,
-} from "$/shared";
+} from "$/shared/index.ts";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import {
   ErrorCode,

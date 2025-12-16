@@ -3,7 +3,7 @@ import {
   makeRequest,
   parseTemplateParameters,
   type ToolRegistry,
-} from "$/shared";
+} from "$/shared/index.ts";
 import { type } from "arktype";
 import { buildTemplateArgumentsSchema, LocalRestAPI } from "shared";
 

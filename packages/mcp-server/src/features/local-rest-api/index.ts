@@ -1,4 +1,4 @@
-import { makeRequest, type ToolRegistry } from "$/shared";
+import { makeRequest, type ToolRegistry } from "$/shared/index.ts";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { type } from "arktype";
 import { LocalRestAPI } from "shared";
