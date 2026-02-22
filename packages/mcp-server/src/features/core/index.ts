@@ -18,8 +18,8 @@ export class ObsidianMcpServer {
   constructor() {
     this.server = new Server(
       {
-        name: "obsidian-mcp-tools",
-        version: "0.1.0",
+        name: "obsidian-mcp-tools (jtmack fork)",
+        version: "0.2.27-jtmack.1",
       },
       {
         capabilities: {

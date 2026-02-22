@@ -60,11 +60,11 @@ export const ApiStatusResponse = type({
   },
   service: "string",
   authenticated: "boolean",
-  certificateInfo: {
+  "certificateInfo?": {
     validityDays: "number",
     regenerateRecommended: "boolean",
   },
-  apiExtensions: ApiPluginManifest.array(),
+  "apiExtensions?": ApiPluginManifest.array(),
 });
 
 /**
