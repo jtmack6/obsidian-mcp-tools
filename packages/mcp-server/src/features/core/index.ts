@@ -6,6 +6,7 @@ import { registerLocalRestApiTools } from "../local-rest-api";
 import { setupObsidianPrompts } from "../prompts";
 import { registerSmartConnectionsTools } from "../smart-connections";
 import { registerTemplaterTools } from "../templates";
+import { getVersion } from "../version" with { type: "macro" };
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -19,7 +20,7 @@ export class ObsidianMcpServer {
     this.server = new Server(
       {
         name: "obsidian-mcp-tools (jtmack fork)",
-        version: "0.2.27-jtmack.1",
+        version: getVersion(),
       },
       {
         capabilities: {
