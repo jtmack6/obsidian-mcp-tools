@@ -71,32 +71,89 @@
   }
 </script>
 
-<div class="installation-status">
-  <h3>Installation status</h3>
+<div class="status-card">
+  <h3>MCP Server Status</h3>
 
   {#if status.state === "no api key"}
-    <div class="error-message">Please configure the Local REST API plugin</div>
+    <div class="status-header">
+      <span class="status-dot status-error"></span>
+      <span class="status-label">Missing API Key</span>
+    </div>
+    <div class="status-detail">Please configure the Local REST API plugin</div>
   {:else if status.state === "not installed"}
-    <div class="status-message">
-      MCP Server is not installed
+    <div class="status-header">
+      <span class="status-dot status-error"></span>
+      <span class="status-label">Not Installed</span>
+    </div>
+    <dl class="version-info">
+      {#if status.versions.plugin}
+        <dt>Plugin version</dt>
+        <dd>{status.versions.plugin}</dd>
+      {/if}
+    </dl>
+    <div class="status-actions">
       <button on:click={handleInstall}>Install server</button>
     </div>
   {:else if status.state === "installing"}
-    <div class="status-message">Installing MCP server...</div>
+    <div class="status-header">
+      <span class="status-dot status-warning"></span>
+      <span class="status-label">Installing…</span>
+    </div>
   {:else if status.state === "installed"}
-    <div class="status-message">
-      MCP Server v{status.versions.server} is installed
+    <div class="status-header">
+      <span class="status-dot status-success"></span>
+      <span class="status-label">Installed</span>
+    </div>
+    <dl class="version-info">
+      {#if status.versions.server}
+        <dt>Server version</dt>
+        <dd>{status.versions.server}</dd>
+      {/if}
+      {#if status.versions.plugin}
+        <dt>Plugin version</dt>
+        <dd>{status.versions.plugin}</dd>
+      {/if}
+      {#if status.path}
+        <dt>Binary path</dt>
+        <dd class="path-value">{status.path}</dd>
+      {/if}
+    </dl>
+    <div class="status-actions">
       <button on:click={handleUninstall}>Uninstall</button>
     </div>
   {:else if status.state === "outdated"}
-    <div class="status-message">
-      Update available (v{status.versions.server} -> v{status.versions.plugin})
+    <div class="status-header">
+      <span class="status-dot status-warning"></span>
+      <span class="status-label">Update Available</span>
+    </div>
+    <dl class="version-info">
+      {#if status.versions.server}
+        <dt>Server version</dt>
+        <dd>{status.versions.server}</dd>
+      {/if}
+      {#if status.versions.plugin}
+        <dt>Plugin version</dt>
+        <dd>{status.versions.plugin}</dd>
+      {/if}
+      {#if status.path}
+        <dt>Binary path</dt>
+        <dd class="path-value">{status.path}</dd>
+      {/if}
+    </dl>
+    <div class="status-actions">
       <button on:click={handleInstall}>Update</button>
     </div>
   {:else if status.state === "uninstalling"}
-    <div class="status-message">Uninstalling MCP server...</div>
+    <div class="status-header">
+      <span class="status-dot status-warning"></span>
+      <span class="status-label">Uninstalling…</span>
+    </div>
   {:else if status.state === "error"}
-    <div class="error-message">{status.error}</div>
+    <div class="status-header">
+      <span class="status-dot status-error"></span>
+      <span class="status-label">Error</span>
+    </div>
+    <div class="status-detail">{status.error}</div>
   {/if}
 </div>
 
@@ -147,32 +204,85 @@
 </div>
 
 <style>
-  .error-message {
-    color: var(--text-error);
+  .status-card {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    background: var(--background-secondary);
     margin-bottom: 1em;
   }
 
-  .status-message {
-    margin-bottom: 1em;
+  .status-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .status-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-success {
+    background-color: var(--text-success);
+  }
+
+  .status-warning {
+    background-color: var(--text-warning);
+  }
+
+  .status-error {
+    background-color: var(--text-error);
+  }
+
+  .status-label {
+    font-weight: 600;
+  }
+
+  .status-detail {
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .version-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 12px;
+    margin: 0 0 8px 18px;
+    font-size: var(--font-ui-small);
+  }
+
+  .version-info dt {
+    color: var(--text-muted);
+  }
+
+  .version-info dd {
+    margin: 0;
+    font-family: var(--font-monospace);
+  }
+
+  .path-value {
+    word-break: break-all;
+  }
+
+  .status-actions {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .dependency-item {
     margin-bottom: 0.5em;
   }
 
-  .installed {
-    color: var(--text-success);
-  }
-
-  .not-installed {
-    color: var(--text-muted);
-  }
-
   .link-item {
     margin-bottom: 0.5em;
-  }
-
-  button {
-    margin-left: 0.5em;
   }
 </style>
