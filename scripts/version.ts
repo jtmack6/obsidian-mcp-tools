@@ -47,7 +47,7 @@ writeFileSync(pluginVersionsPath, JSON.stringify(versions, null, "\t") + "\n");
 // Commit, tag and push
 await $`git add package.json ${pluginManifestPath} ${pluginVersionsPath}`;
 await $`git commit -m ${json.version}`;
-await $`git tag ${json.version}`;
+await $`git tag -a ${json.version} -m ${json.version}`;
 await $`git push`;
 await $`git push origin ${json.version}`;
 

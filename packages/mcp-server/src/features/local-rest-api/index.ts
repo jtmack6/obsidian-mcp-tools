@@ -413,4 +413,47 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       };
     },
   );
+
+  // GET Commands List
+  tools.register(
+    type({
+      name: '"list_commands"',
+      arguments: "Record<string, unknown>",
+    }).describe(
+      "List all available Obsidian commands. Returns command IDs and names that can be used with execute_command.",
+    ),
+    async () => {
+      const data = await makeRequest(
+        LocalRestAPI.ApiCommandsResponse,
+        "/commands/",
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    },
+  );
+
+  // POST Execute Command
+  tools.register(
+    type({
+      name: '"execute_command"',
+      arguments: {
+        commandId: "string",
+      },
+    }).describe(
+      "Execute an Obsidian command by its ID. Use list_commands to discover available commands.",
+    ),
+    async ({ arguments: args }) => {
+      await makeRequest(
+        LocalRestAPI.ApiNoContentResponse,
+        `/commands/${encodeURIComponent(args.commandId)}/`,
+        {
+          method: "POST",
+        },
+      );
+      return {
+        content: [{ type: "text", text: `Command "${args.commandId}" executed successfully` }],
+      };
+    },
+  );
 }

@@ -30,7 +30,10 @@ const sveltePlugin: BunPlugin = {
         const preprocessed = await preprocess(source, svelteConfig.preprocess, {
           filename: parsed.base,
         });
-        const result = compile(preprocessed.code, {
+        // Strip lang="ts" after preprocessing so the Svelte 5 compiler
+        // doesn't attempt to re-parse already-transpiled JS as TypeScript
+        const code = preprocessed.code.replace(/(<script[^>]*)\s+lang=["']ts["']/g, "$1");
+        const result = compile(code, {
           filename: parsed.base,
 					generate: "client",
 					css: "injected",

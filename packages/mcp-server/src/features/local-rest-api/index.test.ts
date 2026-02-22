@@ -90,6 +90,14 @@ const simpleSearchResults = [
 
 const directoryResponse = { files: ["note1.md", "note2.md", "subfolder/note3.md"] };
 
+const commandsResponse = {
+  commands: [
+    { id: "app:go-back", name: "Navigate back" },
+    { id: "editor:toggle-bold", name: "Toggle bold" },
+    { id: "graph:open", name: "Open graph view" },
+  ],
+};
+
 // ---------- Tests ----------
 
 describe("get_server_info", () => {
@@ -399,6 +407,46 @@ describe("delete_vault_file", () => {
       `${BASE_URL}/vault/${encodeURIComponent("old.md")}`,
     );
     expect(lastFetch.init?.method).toBe("DELETE");
+  });
+});
+
+describe("list_commands", () => {
+  test("sends GET to /commands/", async () => {
+    harness.setFetchResponse(mockResponse(commandsResponse));
+    const result = await harness.dispatch("list_commands");
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/commands/`);
+    expect(lastFetch.init?.method).toBeUndefined(); // defaults to GET
+    expect(result.content[0].text).toContain("editor:toggle-bold");
+  });
+});
+
+describe("execute_command", () => {
+  test("sends POST to /commands/{commandId}/", async () => {
+    harness.setFetchResponse(mock204());
+    const result = await harness.dispatch("execute_command", {
+      commandId: "editor:toggle-bold",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(
+      `${BASE_URL}/commands/${encodeURIComponent("editor:toggle-bold")}/`,
+    );
+    expect(lastFetch.init?.method).toBe("POST");
+    expect(result.content[0].text).toContain("executed successfully");
+  });
+
+  test("URL-encodes command IDs with special characters", async () => {
+    harness.setFetchResponse(mock204());
+    await harness.dispatch("execute_command", {
+      commandId: "plugin:my-plugin:do-thing",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(
+      `${BASE_URL}/commands/${encodeURIComponent("plugin:my-plugin:do-thing")}/`,
+    );
   });
 });
 

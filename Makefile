@@ -1,6 +1,6 @@
 .PHONY: all install build build-server build-plugin check test clean \
        dev dev-server dev-plugin release release-server release-plugin \
-       link setup inspector version help
+       install-plugin link setup inspector version help
 
 # Paths
 ROOT        := $(shell pwd)
@@ -11,6 +11,8 @@ DIST_DIR    := $(SERVER_DIR)/dist
 
 # Defaults
 VAULT_CONFIG ?= $(HOME)/Documents/Obsidian_Vault/.obsidian
+PLUGIN_ID   := mcp-tools
+PLUGIN_DEST := $(VAULT_CONFIG)/plugins/$(PLUGIN_ID)
 
 ## help: Show this help message
 help:
@@ -110,6 +112,14 @@ setup:
 		echo "Usage: make setup OBSIDIAN_API_KEY=<key>"; exit 1; \
 	fi
 	cd $(SERVER_DIR) && bun run setup $(OBSIDIAN_API_KEY)
+
+## install-plugin: Build and install plugin + server to Obsidian vault (uses VAULT_CONFIG)
+install-plugin: build
+	@mkdir -p $(PLUGIN_DEST)/bin
+	cp main.js manifest.json $(PLUGIN_DEST)/
+	cp $(DIST_DIR)/mcp-server $(PLUGIN_DEST)/bin/
+	@test -f styles.css && cp styles.css $(PLUGIN_DEST)/ || true
+	@echo "Plugin installed to $(PLUGIN_DEST)"
 
 ## link: Symlink plugin into Obsidian vault for development (uses VAULT_CONFIG)
 link:
