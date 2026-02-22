@@ -57,5 +57,5 @@ export function buildTemplateArgumentsSchema(
     Object.fromEntries(
       args.map((arg) => [arg.name, arg.required ? "string" : "string?"]),
     ) as Record<string, "string" | "string?">,
-  );
+  ) as Type<Record<string, "string" | "string?">, {}>;
 }
