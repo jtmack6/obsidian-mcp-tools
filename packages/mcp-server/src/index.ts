@@ -27,6 +27,7 @@ async function main() {
 if (process.argv.includes("--version")) {
   try {
     console.log(getVersion());
+    process.exit(0);
   } catch (error) {
     console.error(`Error getting version: ${error}`);
     process.exit(1);

@@ -31,50 +31,35 @@ The installation feature is implemented in the Obsidian plugin package under `sr
 The settings UI is implemented as a Svelte component in `components/SettingsTab.svelte`.
 
 1. Component Structure:
-   ```svelte
-   <script lang="ts">
-     // Import Svelte stores for state management
-     import { installationStatus } from '../stores/status';
-     import { dependencies } from '../stores/dependencies';
-     
-     // Props from parent Settings.svelte
-     export let plugin: Plugin;
-   </script>
+   - Implemented in `components/McpServerInstallSettings.svelte`
+   - Props: `plugin: McpToolsPlugin` passed from parent
 
-   <!-- Installation status and controls -->
-   <div class="installation-status">
-     <!-- Dynamic content based on $installationStatus -->
-   </div>
+2. Status Card:
+   The main UI element is a bordered status card displaying:
+   - **Status indicator** — colored dot (green=installed, yellow=installing/outdated, red=error/not installed)
+   - **Status label** — bold text describing the current state
+   - **Version info grid** — server version, plugin version, and binary path (when available)
+   - **Action buttons** — Install/Update/Uninstall as appropriate, right-aligned
 
-   <!-- Dependencies section -->
-   <div class="dependencies">
-     <!-- Dynamic content based on $dependencies -->
-   </div>
+   States displayed:
+   - **Not Installed** — red dot, plugin version, Install button
+   - **Installing/Uninstalling** — yellow dot, progress label
+   - **Installed** — green dot, server version, plugin version, binary path, Uninstall button
+   - **Update Available** — yellow dot, both versions for comparison, Update button
+   - **Error** — red dot, error detail message
+   - **Missing API Key** — red dot, prompt to configure Local REST API
 
-   <!-- Links section -->
-   <div class="links">
-     <!-- External resource links -->
-   </div>
-   ```
-
-2. Display Elements:
-   - Installation status indicator with version
-   - Install/Update/Uninstall buttons
-   - Dependency status and links
-   - Links to:
-     - Downloaded executable location (with folder access)
-     - Log folder location (with folder access)
+3. Additional Sections:
+   - Dependencies list with installed/missing status
+   - Resource links:
+     - Server install folder (with folder access)
+     - Server log folder (with folder access)
      - GitHub repository
-     - Claude Desktop download page (when needed)
-     - Required and recommended plugins
 
-3. State Management:
-   - Uses Svelte stores for reactive state
-   - Status states:
-     - Not Installed
-     - Installing
-     - Installed
-     - Update Available
+4. State Management:
+   - `InstallationStatus` interface with `state`, `versions`, `path`, `dir`, `error` fields
+   - Status fetched on mount via `getInstallationStatus(plugin)`
+   - Reactive updates during install/uninstall operations
 
 ## Download Management
 
@@ -156,15 +141,12 @@ The feature follows a modular structure:
 ```
 src/features/mcp-server-install/
 ├── components/       # Svelte components
-│   └── SettingsTab.svelte
+│   └── McpServerInstallSettings.svelte  # Status card UI
 ├── services/        # Core functionality
 │   ├── config.ts    # Claude config management
-│   ├── download.ts  # Binary download
-│   ├── status.ts    # Installation status
+│   ├── install.ts   # Binary download & installation
+│   ├── status.ts    # Installation status & version check
 │   └── uninstall.ts # Cleanup operations
-├── stores/          # Svelte stores
-│   ├── status.ts    # Installation status store
-│   └── dependencies.ts # Dependencies status store
 ├── utils/           # Shared utilities
 │   └── openFolder.ts
 ├── constants.ts     # Configuration

@@ -99,7 +99,11 @@ export async function getInstallationStatus(
   const pluginVersion = valid(clean(plugin.manifest.version));
   if (!pluginVersion) {
     logger.error("Invalid plugin version:", { plugin });
-    return { state: "error", versions: {} };
+    return {
+      state: "error",
+      error: `Invalid plugin version: ${plugin.manifest.version}`,
+      versions: {},
+    };
   }
 
   // Check for API key
@@ -139,11 +143,14 @@ export async function getInstallationStatus(
     const { stdout } = await execAsync(versionCommand);
     serverVersion = clean(stdout.trim());
     if (!serverVersion) throw new Error("Invalid server version string");
-  } catch {
-    logger.error("Failed to get server version:", { installPath });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
+    logger.error("Failed to get server version:", { installPath, error });
     return {
       state: "error",
       ...installPath,
+      error: `Failed to get server version: ${message}`,
       versions: { plugin: pluginVersion },
     };
   }
