@@ -1,7 +1,15 @@
 #!/usr/bin/env bun
-import { logger } from "$/shared";
-import { ObsidianMcpServer } from "./features/core";
 import { getVersion } from "./features/version" with { type: "macro" };
+
+// Handle --version before loading heavy modules that may block on stdin
+if (process.argv.includes("--version")) {
+  console.log(getVersion());
+  process.exit(0);
+}
+
+// Dynamic imports to avoid side effects when only printing version
+const { logger } = await import("$/shared");
+const { ObsidianMcpServer } = await import("./features/core");
 
 async function main() {
   try {
@@ -24,17 +32,7 @@ async function main() {
   }
 }
 
-if (process.argv.includes("--version")) {
-  try {
-    console.log(getVersion());
-    process.exit(0);
-  } catch (error) {
-    console.error(`Error getting version: ${error}`);
-    process.exit(1);
-  }
-} else {
-  main().catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
