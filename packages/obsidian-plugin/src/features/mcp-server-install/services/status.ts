@@ -1,17 +1,13 @@
 import type McpToolsPlugin from "$/main";
 import { logger } from "$/shared/logger";
-import { exec } from "child_process";
 import fsp from "fs/promises";
 import { Plugin } from "obsidian";
 import path from "path";
 import { clean, lt, valid } from "semver";
-import { promisify } from "util";
-import { BINARY_NAME } from "../constants";
+import { BINARY_NAME, VERSION_FILENAME } from "../constants";
 import type { InstallationStatus, InstallPathInfo } from "../types";
 import { getFileSystemAdapter } from "../utils/getFileSystemAdapter";
 import { getPlatform } from "./install";
-
-const execAsync = promisify(exec);
 
 /**
  * Resolves the real path of the given file path, handling cases where the path is a symlink.
@@ -136,21 +132,21 @@ export async function getInstallationStatus(
     };
   }
 
-  // Check server binary version
+  // Check server version from version file
   let serverVersion: string | null | undefined;
   try {
-    const versionCommand = `"${installPath.path}" --version`;
-    const { stdout } = await execAsync(versionCommand);
-    serverVersion = clean(stdout.trim());
-    if (!serverVersion) throw new Error("Invalid server version string");
+    const versionFile = path.join(installPath.dir, VERSION_FILENAME);
+    const raw = await fsp.readFile(versionFile, "utf-8");
+    serverVersion = clean(raw.trim());
+    if (!serverVersion) throw new Error("Invalid version in version file");
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error";
-    logger.error("Failed to get server version:", { installPath, error });
+    logger.error("Failed to read server version:", { installPath, error });
     return {
       state: "error",
       ...installPath,
-      error: `Failed to get server version: ${message}`,
+      error: `Failed to read server version: ${message}`,
       versions: { plugin: pluginVersion },
     };
   }

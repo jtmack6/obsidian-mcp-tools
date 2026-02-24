@@ -3,6 +3,8 @@ import { environmentVariables } from "./bundle-time" with { type: "macro" };
 export const { GITHUB_DOWNLOAD_URL, GITHUB_REF_NAME } =
   environmentVariables();
 
+export const VERSION_FILENAME = "version";
+
 export const BINARY_NAME = {
   windows: "mcp-server.exe",
   macos: "mcp-server",

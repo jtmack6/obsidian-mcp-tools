@@ -118,6 +118,7 @@ install-plugin: build
 	@mkdir -p $(PLUGIN_DEST)/bin
 	cp main.js manifest.json $(PLUGIN_DEST)/
 	cp $(DIST_DIR)/mcp-server $(PLUGIN_DEST)/bin/
+	node -e "var p=require('./package.json');process.stdout.write(p.version)" > $(PLUGIN_DEST)/bin/version
 	@test -f styles.css && cp styles.css $(PLUGIN_DEST)/ || true
 	@echo "Plugin installed to $(PLUGIN_DEST)"
 

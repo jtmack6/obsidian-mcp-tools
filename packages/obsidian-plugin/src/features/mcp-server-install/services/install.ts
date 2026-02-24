@@ -3,9 +3,15 @@ import fsp from "fs/promises";
 import https from "https";
 import { Notice, Plugin } from "obsidian";
 import os from "os";
+import path from "path";
 import { Observable } from "rxjs";
 import { logger } from "$/shared";
-import { GITHUB_DOWNLOAD_URL, type Arch, type Platform } from "../constants";
+import {
+  GITHUB_DOWNLOAD_URL,
+  VERSION_FILENAME,
+  type Arch,
+  type Platform,
+} from "../constants";
 import type { DownloadProgress, InstallPathInfo } from "../types";
 import { getInstallPath } from "./status";
 
@@ -242,8 +248,11 @@ export async function installMcpServer(
           logger.error("Download failed:", { error, installPath });
           reject(error);
         },
-        complete: () => {
+        complete: async () => {
           progressNotice.hide();
+          // Write version file alongside the binary
+          const versionFile = path.join(installPath.dir, VERSION_FILENAME);
+          await fsp.writeFile(versionFile, plugin.manifest.version, "utf-8");
           new Notice("MCP server downloaded successfully!");
           logger.info("MCP server downloaded", { installPath });
           resolve(installPath);
