@@ -3,6 +3,29 @@ import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { type } from "arktype";
 import { LocalRestAPI } from "shared";
 
+function periodicPath(args: {
+  period: string;
+  year?: number;
+  month?: number;
+  day?: number;
+}): string {
+  if (
+    args.year !== undefined &&
+    args.month !== undefined &&
+    args.day !== undefined
+  ) {
+    return `/periodic/${args.period}/${args.year}/${args.month}/${args.day}/`;
+  }
+  return `/periodic/${args.period}/`;
+}
+
+const PeriodicNoteParams = {
+  period: '"daily" | "weekly" | "monthly" | "quarterly" | "yearly"' as const,
+  "year?": "number" as const,
+  "month?": "number" as const,
+  "day?": "number" as const,
+};
+
 export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
   // GET Status
   tools.register(
@@ -410,6 +433,155 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       );
       return {
         content: [{ type: "text", text: "File deleted successfully" }],
+      };
+    },
+  );
+
+  // GET Periodic Note
+  tools.register(
+    type({
+      name: '"get_periodic_note"',
+      arguments: {
+        ...PeriodicNoteParams,
+        "format?": '"markdown" | "json"',
+      },
+    }).describe(
+      "Returns the content of a periodic note (daily, weekly, monthly, quarterly, or yearly). When year/month/day are all provided, targets that specific date's note; otherwise targets the current period's note.",
+    ),
+    async ({ arguments: args }) => {
+      const format =
+        args.format === "json"
+          ? "application/vnd.olrapi.note+json"
+          : "text/markdown";
+      const data = await makeRequest(
+        LocalRestAPI.ApiNoteJson.or("string"),
+        periodicPath(args),
+        {
+          headers: { Accept: format },
+        },
+      );
+      const content =
+        typeof data === "string" ? data : JSON.stringify(data, null, 2);
+      return { content: [{ type: "text", text: content }] };
+    },
+  );
+
+  // PUT Periodic Note
+  tools.register(
+    type({
+      name: '"update_periodic_note"',
+      arguments: {
+        ...PeriodicNoteParams,
+        content: "string",
+      },
+    }).describe(
+      "Update the content of a periodic note. When year/month/day are all provided, targets that specific date's note; otherwise targets the current period's note.",
+    ),
+    async ({ arguments: args }) => {
+      await makeRequest(
+        LocalRestAPI.ApiNoContentResponse,
+        periodicPath(args),
+        {
+          method: "PUT",
+          body: args.content,
+        },
+      );
+      return {
+        content: [{ type: "text", text: "Periodic note updated successfully" }],
+      };
+    },
+  );
+
+  // POST Periodic Note
+  tools.register(
+    type({
+      name: '"append_to_periodic_note"',
+      arguments: {
+        ...PeriodicNoteParams,
+        content: "string",
+      },
+    }).describe(
+      "Append content to a periodic note. When year/month/day are all provided, targets that specific date's note; otherwise targets the current period's note.",
+    ),
+    async ({ arguments: args }) => {
+      await makeRequest(
+        LocalRestAPI.ApiNoContentResponse,
+        periodicPath(args),
+        {
+          method: "POST",
+          body: args.content,
+        },
+      );
+      return {
+        content: [
+          { type: "text", text: "Content appended to periodic note successfully" },
+        ],
+      };
+    },
+  );
+
+  // PATCH Periodic Note
+  tools.register(
+    type({
+      name: '"patch_periodic_note"',
+      arguments: type(PeriodicNoteParams).and(LocalRestAPI.ApiPatchParameters),
+    }).describe(
+      "Insert or modify content in a periodic note relative to a heading, block reference, or frontmatter field. When year/month/day are all provided, targets that specific date's note; otherwise targets the current period's note.",
+    ),
+    async ({ arguments: args }) => {
+      const headers: Record<string, string> = {
+        Operation: args.operation,
+        "Target-Type": args.targetType,
+        Target: args.target,
+        "Create-Target-If-Missing": "true",
+      };
+
+      if (args.targetDelimiter) {
+        headers["Target-Delimiter"] = args.targetDelimiter;
+      }
+      if (args.trimTargetWhitespace !== undefined) {
+        headers["Trim-Target-Whitespace"] = String(args.trimTargetWhitespace);
+      }
+      if (args.contentType) {
+        headers["Content-Type"] = args.contentType;
+      }
+
+      const response = await makeRequest(
+        LocalRestAPI.ApiContentResponse,
+        periodicPath(args),
+        {
+          method: "PATCH",
+          headers,
+          body: args.content,
+        },
+      );
+      return {
+        content: [
+          { type: "text", text: "Periodic note patched successfully" },
+          { type: "text", text: response },
+        ],
+      };
+    },
+  );
+
+  // DELETE Periodic Note
+  tools.register(
+    type({
+      name: '"delete_periodic_note"',
+      arguments: PeriodicNoteParams,
+    }).describe(
+      "Delete a periodic note. When year/month/day are all provided, targets that specific date's note; otherwise targets the current period's note.",
+    ),
+    async ({ arguments: args }) => {
+      await makeRequest(
+        LocalRestAPI.ApiNoContentResponse,
+        periodicPath(args),
+        {
+          method: "DELETE",
+        },
+      );
+      return {
+        content: [{ type: "text", text: "Periodic note deleted successfully" }],
       };
     },
   );

@@ -410,6 +410,170 @@ describe("delete_vault_file", () => {
   });
 });
 
+// ---------- Periodic Note Tools ----------
+
+describe("get_periodic_note", () => {
+  test("sends GET to /periodic/{period}/ for current period", async () => {
+    harness.setFetchResponse(
+      mockResponse("# Daily Note", { contentType: "text/markdown" }),
+    );
+    const result = await harness.dispatch("get_periodic_note", {
+      period: "daily",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/daily/`);
+    expect(lastFetch.init?.method).toBeUndefined();
+    const headers = lastFetch.init?.headers as Record<string, string>;
+    expect(headers.Accept).toBe("text/markdown");
+    expect(result.content[0].text).toBe("# Daily Note");
+  });
+
+  test("sends GET to /periodic/{period}/{y}/{m}/{d}/ for specific date", async () => {
+    harness.setFetchResponse(
+      mockResponse("# Jan 15 Note", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("get_periodic_note", {
+      period: "daily",
+      year: 2026,
+      month: 1,
+      day: 15,
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/daily/2026/1/15/`);
+  });
+
+  test("sends JSON Accept header when format=json", async () => {
+    harness.setFetchResponse(mockResponse(noteJson));
+    await harness.dispatch("get_periodic_note", {
+      period: "weekly",
+      format: "json",
+    });
+
+    const headers = harness.getLastFetch()!.init?.headers as Record<string, string>;
+    expect(headers.Accept).toBe("application/vnd.olrapi.note+json");
+  });
+});
+
+describe("update_periodic_note", () => {
+  test("sends PUT to /periodic/{period}/ with body", async () => {
+    harness.setFetchResponse(mock204());
+    await harness.dispatch("update_periodic_note", {
+      period: "daily",
+      content: "new content",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/daily/`);
+    expect(lastFetch.init?.method).toBe("PUT");
+    expect(lastFetch.init?.body).toBe("new content");
+  });
+
+  test("sends PUT to date-specific path when date provided", async () => {
+    harness.setFetchResponse(mock204());
+    await harness.dispatch("update_periodic_note", {
+      period: "monthly",
+      year: 2026,
+      month: 2,
+      day: 1,
+      content: "monthly content",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/monthly/2026/2/1/`);
+    expect(lastFetch.init?.method).toBe("PUT");
+  });
+});
+
+describe("append_to_periodic_note", () => {
+  test("sends POST to /periodic/{period}/ with body", async () => {
+    harness.setFetchResponse(mock204());
+    await harness.dispatch("append_to_periodic_note", {
+      period: "yearly",
+      content: "appended",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/yearly/`);
+    expect(lastFetch.init?.method).toBe("POST");
+    expect(lastFetch.init?.body).toBe("appended");
+  });
+});
+
+describe("patch_periodic_note", () => {
+  test("sends PATCH to /periodic/{period}/ with correct headers", async () => {
+    harness.setFetchResponse(
+      mockResponse("patched content", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("patch_periodic_note", {
+      period: "daily",
+      operation: "append",
+      targetType: "heading",
+      target: "Tasks",
+      content: "- [ ] New task",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/daily/`);
+    expect(lastFetch.init?.method).toBe("PATCH");
+    const headers = lastFetch.init?.headers as Record<string, string>;
+    expect(headers.Operation).toBe("append");
+    expect(headers["Target-Type"]).toBe("heading");
+    expect(headers.Target).toBe("Tasks");
+    expect(headers["Create-Target-If-Missing"]).toBe("true");
+  });
+
+  test("sends PATCH to date-specific path", async () => {
+    harness.setFetchResponse(
+      mockResponse("patched", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("patch_periodic_note", {
+      period: "quarterly",
+      year: 2026,
+      month: 1,
+      day: 1,
+      operation: "replace",
+      targetType: "frontmatter",
+      target: "status",
+      content: '"done"',
+      contentType: "application/json",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/quarterly/2026/1/1/`);
+    const headers = lastFetch.init?.headers as Record<string, string>;
+    expect(headers["Content-Type"]).toBe("application/json");
+  });
+});
+
+describe("delete_periodic_note", () => {
+  test("sends DELETE to /periodic/{period}/", async () => {
+    harness.setFetchResponse(mock204());
+    const result = await harness.dispatch("delete_periodic_note", {
+      period: "daily",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/daily/`);
+    expect(lastFetch.init?.method).toBe("DELETE");
+    expect(result.content[0].text).toContain("deleted");
+  });
+
+  test("sends DELETE to date-specific path", async () => {
+    harness.setFetchResponse(mock204());
+    await harness.dispatch("delete_periodic_note", {
+      period: "weekly",
+      year: 2026,
+      month: 3,
+      day: 10,
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/periodic/weekly/2026/3/10/`);
+  });
+});
+
 describe("list_commands", () => {
   test("sends GET to /commands/", async () => {
     harness.setFetchResponse(mockResponse(commandsResponse));

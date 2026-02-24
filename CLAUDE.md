@@ -97,12 +97,12 @@ Unified versioning across plugin and server. Run `bun run version [patch|minor|m
 
 ## MCP Tools
 
-The server exposes 18 tools across 4 feature modules:
+The server exposes 23 tools across 4 feature modules:
 
 | Feature | Tools | Required Plugin |
 |---------|-------|-----------------|
 | **Fetch** | `fetch` | None |
-| **Local REST API** | `get_server_info`, `get_active_file`, `update_active_file`, `append_to_active_file`, `patch_active_file`, `delete_active_file`, `show_file_in_obsidian`, `list_vault_files`, `get_vault_file`, `create_vault_file`, `append_to_vault_file`, `patch_vault_file`, `delete_vault_file`, `search_vault`, `search_vault_simple` | Local REST API |
+| **Local REST API** | `get_server_info`, `get_active_file`, `update_active_file`, `append_to_active_file`, `patch_active_file`, `delete_active_file`, `show_file_in_obsidian`, `list_vault_files`, `get_vault_file`, `create_vault_file`, `append_to_vault_file`, `patch_vault_file`, `delete_vault_file`, `search_vault`, `search_vault_simple`, `get_periodic_note`, `update_periodic_note`, `append_to_periodic_note`, `patch_periodic_note`, `delete_periodic_note` | Local REST API |
 | **Smart Connections** | `search_vault_smart` | Smart Connections |
 | **Templater** | `execute_template` | Templater |
 
@@ -120,11 +120,11 @@ Test infrastructure:
 - **`src/shared/test-utils.ts`** — Shared harness: `mockResponse()`, `mock204()`, `mockErrorResponse()`, `createTestHarness()` (mocks `globalThis.fetch`, provides `dispatch()`, `getLastFetch()`, `getFetchCalls()`)
 - Tests exercise the full tool chain via `ToolRegistry.dispatch()`: argument validation → request construction → response parsing → ArkType validation
 
-Test files (~54 tests total):
+Test files (~71 tests total):
 | File | Coverage |
 |------|----------|
 | `src/shared/makeRequest.test.ts` | HTTP layer: auth headers, URL construction, JSON/text parsing, errors, 204 |
-| `src/features/local-rest-api/index.test.ts` | All 15 Local REST API tools |
+| `src/features/local-rest-api/index.test.ts` | All 20 Local REST API tools |
 | `src/features/fetch/index.test.ts` | Fetch tool: markdown conversion, raw mode, pagination |
 | `src/features/smart-connections/index.test.ts` | Smart search: POST body, filters, results |
 | `src/features/templates/index.test.ts` | Template execution: two-phase fetch, boolean coercion |
