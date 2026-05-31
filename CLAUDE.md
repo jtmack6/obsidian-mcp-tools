@@ -23,7 +23,7 @@ bun run version      # Version management (bun scripts/version.ts)
 ```bash
 bun run dev          # Watch mode, outputs to ../../bin/mcp-server
 bun run build        # Single platform build to dist/mcp-server
-bun run test         # Run tests (bun test ./src/**/*.test.ts)
+bun run test         # Run tests (bun test ./src)
 bun run inspector    # MCP Inspector for debugging
 bun run release      # Cross-platform builds (linux, mac-arm64, mac-x64, windows)
 ```
@@ -81,7 +81,7 @@ if (result instanceof type.errors) {
 - **Language:** TypeScript (strict mode required)
 - **UI:** Svelte 5+ with preprocessing
 - **Validation:** ArkType for runtime type validation
-- **MCP:** @modelcontextprotocol/sdk v1.0.4
+- **MCP:** @modelcontextprotocol/sdk v1.29+
 
 ## Conventions
 
@@ -97,12 +97,12 @@ Unified versioning across plugin and server. Run `bun run version [patch|minor|m
 
 ## MCP Tools
 
-The server exposes 23 tools across 4 feature modules:
+The server exposes 25 tools across 4 feature modules:
 
 | Feature | Tools | Required Plugin |
 |---------|-------|-----------------|
 | **Fetch** | `fetch` | None |
-| **Local REST API** | `get_server_info`, `get_active_file`, `update_active_file`, `append_to_active_file`, `patch_active_file`, `delete_active_file`, `show_file_in_obsidian`, `list_vault_files`, `get_vault_file`, `create_vault_file`, `append_to_vault_file`, `patch_vault_file`, `delete_vault_file`, `search_vault`, `search_vault_simple`, `get_periodic_note`, `update_periodic_note`, `append_to_periodic_note`, `patch_periodic_note`, `delete_periodic_note` | Local REST API |
+| **Local REST API** | `get_server_info`, `get_active_file`, `update_active_file`, `append_to_active_file`, `patch_active_file`, `delete_active_file`, `show_file_in_obsidian`, `list_vault_files`, `get_vault_file`, `create_vault_file`, `append_to_vault_file`, `patch_vault_file`, `delete_vault_file`, `search_vault`, `search_vault_simple`, `get_periodic_note`, `update_periodic_note`, `append_to_periodic_note`, `patch_periodic_note`, `delete_periodic_note`, `list_commands`, `execute_command` | Local REST API |
 | **Smart Connections** | `search_vault_smart` | Smart Connections |
 | **Templater** | `execute_template` | Templater |
 
@@ -113,7 +113,7 @@ Tool implementations live in `packages/mcp-server/src/features/`. Each tool is r
 ### Unit Tests
 Tests use `bun:test` with colocated `.test.ts` files. Run from `packages/mcp-server/`:
 ```bash
-bun run test         # bun test ./src/**/*.test.ts
+bun run test         # bun test ./src
 ```
 
 Test infrastructure:
@@ -124,8 +124,10 @@ Test files (~71 tests total):
 | File | Coverage |
 |------|----------|
 | `src/shared/makeRequest.test.ts` | HTTP layer: auth headers, URL construction, JSON/text parsing, errors, 204 |
-| `src/features/local-rest-api/index.test.ts` | All 20 Local REST API tools |
+| `src/shared/parseTemplateParameters.test.ts` | Template parameter parsing |
+| `src/features/local-rest-api/index.test.ts` | All 22 Local REST API tools |
 | `src/features/fetch/index.test.ts` | Fetch tool: markdown conversion, raw mode, pagination |
+| `src/features/fetch/services/markdown.test.ts` | HTML→markdown conversion service |
 | `src/features/smart-connections/index.test.ts` | Smart search: POST body, filters, results |
 | `src/features/templates/index.test.ts` | Template execution: two-phase fetch, boolean coercion |
 

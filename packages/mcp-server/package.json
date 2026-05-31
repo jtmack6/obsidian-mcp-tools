@@ -14,16 +14,16 @@
     "inspector": "npx @modelcontextprotocol/inspector bun src/index.ts",
     "release": "run-s build:*",
     "setup": "bun run ./scripts/install.ts",
-    "test": "bun test ./src/**/*.test.ts"
+    "test": "bun test ./src"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "acorn": "^8.16.0",
     "acorn-walk": "^8.3.5",
-    "arktype": "^2.1.29",
+    "arktype": "^2.2.0",
     "radash": "^12.1.1",
     "shared": "workspace:*",
-    "turndown": "^7.2.2",
+    "turndown": "^7.2.4",
     "zod": "^3.25.0"
   },
   "devDependencies": {

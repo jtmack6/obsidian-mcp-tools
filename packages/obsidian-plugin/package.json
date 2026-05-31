@@ -20,7 +20,7 @@
 	},
 	"dependencies": {
 		"@types/fs-extra": "^11.0.4",
-		"arktype": "^2.1.29",
+		"arktype": "^2.2.0",
 		"express": "^4.21.2",
 		"fs-extra": "^11.3.3",
 		"obsidian-local-rest-api": "^2.5.4",
