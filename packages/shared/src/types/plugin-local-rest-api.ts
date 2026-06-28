@@ -214,13 +214,16 @@ export const ApiPatchParameters = type({
     "Identifies what to modify: a section under a heading, a referenced block, or a frontmatter field",
   ),
   target: type("string").describe(
-    "The identifier - either heading path (e.g. 'Heading 1::Subheading 1:1'), block reference ID, or frontmatter field name",
+    "The identifier - either heading path, block reference ID, or frontmatter field name. For nested headings you MUST pass the full delimiter path (e.g. 'Heading 1::Subheading 1:1'), not just the leaf heading name, or the target will not match.",
   ),
   "targetDelimiter?": type("string").describe(
     "The separator used in heading paths to indicate nesting (default '::')",
   ),
   "trimTargetWhitespace?": type("boolean").describe(
     "Whether to remove whitespace from target identifier before matching (default: false)",
+  ),
+  "createTargetIfMissing?": type("boolean").describe(
+    "If true, create the target (e.g. a new heading at end of file) when it does not exist instead of failing. Default false: a non-matching target returns an error so you can correct it, rather than silently appending a duplicate heading.",
   ),
   content: type("string").describe(
     "The actual content to insert, append, or use as replacement",

@@ -122,9 +122,11 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
         Operation: args.operation,
         "Target-Type": args.targetType,
         Target: args.target,
-        "Create-Target-If-Missing": "true",
       };
 
+      if (args.createTargetIfMissing) {
+        headers["Create-Target-If-Missing"] = "true";
+      }
       if (args.targetDelimiter) {
         headers["Target-Delimiter"] = args.targetDelimiter;
       }
@@ -379,13 +381,15 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       "Insert or modify content in a file relative to a heading, block reference, or frontmatter field.",
     ),
     async ({ arguments: args }) => {
-      const headers: HeadersInit = {
+      const headers: Record<string, string> = {
         Operation: args.operation,
         "Target-Type": args.targetType,
         Target: args.target,
-        "Create-Target-If-Missing": "true",
       };
 
+      if (args.createTargetIfMissing) {
+        headers["Create-Target-If-Missing"] = "true";
+      }
       if (args.targetDelimiter) {
         headers["Target-Delimiter"] = args.targetDelimiter;
       }
@@ -533,9 +537,11 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
         Operation: args.operation,
         "Target-Type": args.targetType,
         Target: args.target,
-        "Create-Target-If-Missing": "true",
       };
 
+      if (args.createTargetIfMissing) {
+        headers["Create-Target-If-Missing"] = "true";
+      }
       if (args.targetDelimiter) {
         headers["Target-Delimiter"] = args.targetDelimiter;
       }

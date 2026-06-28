@@ -177,6 +177,22 @@ describe("patch_active_file", () => {
     expect(headers.Operation).toBe("append");
     expect(headers["Target-Type"]).toBe("heading");
     expect(headers.Target).toBe("Section 1");
+    expect(headers["Create-Target-If-Missing"]).toBeUndefined();
+  });
+
+  test("sends Create-Target-If-Missing only when opted in", async () => {
+    harness.setFetchResponse(
+      mockResponse("patched content", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("patch_active_file", {
+      operation: "append",
+      targetType: "heading",
+      target: "Section 1",
+      content: "new text",
+      createTargetIfMissing: true,
+    });
+
+    const headers = harness.getLastFetch()!.init?.headers as Record<string, string>;
     expect(headers["Create-Target-If-Missing"]).toBe("true");
   });
 
@@ -521,7 +537,7 @@ describe("patch_periodic_note", () => {
     expect(headers.Operation).toBe("append");
     expect(headers["Target-Type"]).toBe("heading");
     expect(headers.Target).toBe("Tasks");
-    expect(headers["Create-Target-If-Missing"]).toBe("true");
+    expect(headers["Create-Target-If-Missing"]).toBeUndefined();
   });
 
   test("sends PATCH to date-specific path", async () => {
