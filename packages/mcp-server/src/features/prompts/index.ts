@@ -1,4 +1,5 @@
 import {
+  encodeVaultPath,
   formatMcpError,
   logger,
   makeRequest,
@@ -26,7 +27,7 @@ export function setupObsidianPrompts(server: Server) {
     try {
       const { files } = await makeRequest(
         LocalRestAPI.ApiVaultDirectoryResponse,
-        `/vault/${PROMPT_DIRNAME}/`,
+        `/vault/${encodeVaultPath(PROMPT_DIRNAME)}/`,
       );
       const prompts: PromptMetadata[] = (
         await Promise.all(
@@ -37,7 +38,7 @@ export function setupObsidianPrompts(server: Server) {
             // Retrieve frontmatter and content from vault file
             const file = await makeRequest(
               LocalRestAPI.ApiVaultFileResponse,
-              `/vault/${PROMPT_DIRNAME}/${filename}`,
+              `/vault/${encodeVaultPath(`${PROMPT_DIRNAME}/${filename}`)}`,
               {
                 headers: { Accept: LocalRestAPI.MIME_TYPE_OLRAPI_NOTE_JSON },
               },
@@ -74,7 +75,7 @@ export function setupObsidianPrompts(server: Server) {
       // Get prompt content
       const { content: template, frontmatter } = await makeRequest(
         LocalRestAPI.ApiVaultFileResponse,
-        `/vault/${promptFilePath}`,
+        `/vault/${encodeVaultPath(promptFilePath)}`,
         {
           headers: { Accept: LocalRestAPI.MIME_TYPE_OLRAPI_NOTE_JSON },
         },

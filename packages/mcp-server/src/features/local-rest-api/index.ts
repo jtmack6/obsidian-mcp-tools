@@ -1,7 +1,22 @@
-import { makeRequest, type ToolRegistry } from "$/shared";
+import { encodeVaultPath, makeRequest, type ToolRegistry } from "$/shared";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { type } from "arktype";
 import { LocalRestAPI } from "shared";
+
+/**
+ * Which PATCH wire format we speak to the Local REST API plugin.
+ *
+ * Local REST API 5.x supports two incompatible formats and refuses to guess between them:
+ * without this header it answers 400 / errorCode 40084 and every patch tool breaks. (4.x
+ * defaulted to the 1.x format, which is why omitting it worked until now.)
+ *
+ * Stay on "1" — it is the format the code below already speaks: header-driven targeting,
+ * `::`-delimited heading paths, content in the body. Version "2" takes heading targets as
+ * percent-encoded JSON arrays and *silently ignores* Target-Delimiter and
+ * Trim-Target-Whitespace, both of which are exposed as tool parameters here. Moving to "2"
+ * is a migration, not a header swap.
+ */
+const MARKDOWN_PATCH_VERSION = "1";
 
 function periodicPath(args: {
   period: string;
@@ -122,6 +137,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
         Operation: args.operation,
         "Target-Type": args.targetType,
         Target: args.target,
+        "Markdown-Patch-Version": MARKDOWN_PATCH_VERSION,
       };
 
       if (args.createTargetIfMissing) {
@@ -187,7 +203,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
 
       await makeRequest(
         LocalRestAPI.ApiNoContentResponse,
-        `/open/${encodeURIComponent(args.filename)}${query}`,
+        `/open/${encodeVaultPath(args.filename)}${query}`,
         {
           method: "POST",
         },
@@ -276,7 +292,9 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       "List files in the root directory or a specified subdirectory of your vault.",
     ),
     async ({ arguments: args }) => {
-      const path = args.directory ? `${args.directory}/` : "";
+      const path = args.directory
+        ? `${encodeVaultPath(args.directory.replace(/\/$/, ""))}/`
+        : "";
       const data = await makeRequest(
         LocalRestAPI.ApiVaultFileResponse.or(
           LocalRestAPI.ApiVaultDirectoryResponse,
@@ -305,7 +323,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
         : "text/markdown";
       const data = await makeRequest(
         isJson ? LocalRestAPI.ApiNoteJson : LocalRestAPI.ApiContentResponse,
-        `/vault/${encodeURIComponent(args.filename)}`,
+        `/vault/${encodeVaultPath(args.filename)}`,
         {
           headers: { Accept: format },
         },
@@ -334,7 +352,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
     async ({ arguments: args }) => {
       await makeRequest(
         LocalRestAPI.ApiNoContentResponse,
-        `/vault/${encodeURIComponent(args.filename)}`,
+        `/vault/${encodeVaultPath(args.filename)}`,
         {
           method: "PUT",
           body: args.content,
@@ -358,7 +376,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
     async ({ arguments: args }) => {
       await makeRequest(
         LocalRestAPI.ApiNoContentResponse,
-        `/vault/${encodeURIComponent(args.filename)}`,
+        `/vault/${encodeVaultPath(args.filename)}`,
         {
           method: "POST",
           body: args.content,
@@ -385,6 +403,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
         Operation: args.operation,
         "Target-Type": args.targetType,
         Target: args.target,
+        "Markdown-Patch-Version": MARKDOWN_PATCH_VERSION,
       };
 
       if (args.createTargetIfMissing) {
@@ -402,7 +421,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
 
       const response = await makeRequest(
         LocalRestAPI.ApiContentResponse,
-        `/vault/${encodeURIComponent(args.filename)}`,
+        `/vault/${encodeVaultPath(args.filename)}`,
         {
           method: "PATCH",
           headers,
@@ -430,7 +449,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
     async ({ arguments: args }) => {
       await makeRequest(
         LocalRestAPI.ApiNoContentResponse,
-        `/vault/${encodeURIComponent(args.filename)}`,
+        `/vault/${encodeVaultPath(args.filename)}`,
         {
           method: "DELETE",
         },
@@ -537,6 +556,7 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
         Operation: args.operation,
         "Target-Type": args.targetType,
         Target: args.target,
+        "Markdown-Patch-Version": MARKDOWN_PATCH_VERSION,
       };
 
       if (args.createTargetIfMissing) {

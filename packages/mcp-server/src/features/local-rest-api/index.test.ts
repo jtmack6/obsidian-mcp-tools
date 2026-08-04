@@ -230,7 +230,7 @@ describe("delete_active_file", () => {
 });
 
 describe("show_file_in_obsidian", () => {
-  test("sends POST with URL-encoded filename", async () => {
+  test("sends POST with URL-encoded filename, keeping slashes literal", async () => {
     harness.setFetchResponse(mock204());
     await harness.dispatch("show_file_in_obsidian", {
       filename: "my folder/my note.md",
@@ -238,7 +238,7 @@ describe("show_file_in_obsidian", () => {
 
     const lastFetch = harness.getLastFetch()!;
     expect(lastFetch.url).toBe(
-      `${BASE_URL}/open/${encodeURIComponent("my folder/my note.md")}`,
+      `${BASE_URL}/open/my%20folder/my%20note.md`,
     );
     expect(lastFetch.init?.method).toBe("POST");
   });
@@ -325,6 +325,24 @@ describe("list_vault_files", () => {
     const lastFetch = harness.getLastFetch()!;
     expect(lastFetch.url).toBe(`${BASE_URL}/vault/subfolder/`);
   });
+
+  test("keeps slashes literal and escapes spaces in nested directories", async () => {
+    harness.setFetchResponse(mockResponse(directoryResponse));
+    await harness.dispatch("list_vault_files", {
+      directory: "Projects/my notes",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/vault/Projects/my%20notes/`);
+  });
+
+  test("does not double the trailing slash", async () => {
+    harness.setFetchResponse(mockResponse(directoryResponse));
+    await harness.dispatch("list_vault_files", { directory: "subfolder/" });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/vault/subfolder/`);
+  });
 });
 
 describe("get_vault_file", () => {
@@ -340,6 +358,19 @@ describe("get_vault_file", () => {
     );
     const headers = lastFetch.init?.headers as Record<string, string>;
     expect(headers.Accept).toBe("text/markdown");
+  });
+
+  test("does not percent-encode slashes in nested paths", async () => {
+    harness.setFetchResponse(
+      mockResponse("# Content", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("get_vault_file", {
+      filename: "Projects/mixctl/PLAN.md",
+    });
+
+    const lastFetch = harness.getLastFetch()!;
+    expect(lastFetch.url).toBe(`${BASE_URL}/vault/Projects/mixctl/PLAN.md`);
+    expect(lastFetch.url).not.toContain("%2F");
   });
 
   test("sends JSON Accept when format=json", async () => {
