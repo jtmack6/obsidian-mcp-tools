@@ -46,6 +46,7 @@ All features require an MCP-compatible client like Claude Desktop, as this plugi
 
 - [Templater](https://silentvoid13.github.io/Templater/) plugin for enhanced template functionality
 - [Smart Connections](https://smartconnections.app/) plugin for semantic search capabilities
+- [Local REST API Periodic Notes](https://github.com/coddingtonbear/obsidian-local-rest-api-periodic-notes) plugin for the periodic/daily note tools — Local REST API 5.0+ no longer serves `/periodic/` itself
 
 ## Installation
 

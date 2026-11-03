@@ -135,6 +135,7 @@ Test files (~71 tests total):
 
 #### Required Obsidian Plugins
 - **Local REST API** - Core vault operations (required for most tools)
+- **Local REST API Periodic Notes** - Periodic/daily note tools (Local REST API 5.0+ moved `/periodic/` routes into this companion plugin)
 - **Smart Connections** - Semantic search
 - **Templater** - Template execution
 - **Dataview** - Advanced search queries
