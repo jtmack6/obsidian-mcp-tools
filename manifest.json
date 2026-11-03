@@ -1,7 +1,7 @@
 {
   "id": "mcp-mctools",
   "name": "MCP Tools (jtmack fork)",
-  "version": "0.2.34",
+  "version": "0.2.35",
   "minAppVersion": "0.15.0",
   "description": "Securely connect Claude Desktop to your vault with semantic search, templates, and file management capabilities.",
   "author": "Jim Mack",
