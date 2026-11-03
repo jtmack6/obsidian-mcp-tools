@@ -1,6 +1,6 @@
 import { type } from "arktype";
 import type { Request, Response } from "express";
-import { Notice, Plugin, TFile } from "obsidian";
+import { Notice, Plugin, TFile, type Events } from "obsidian";
 import { shake } from "radash";
 import { lastValueFrom } from "rxjs";
 import {
@@ -15,6 +15,7 @@ import { setup as setupCore } from "./features/core";
 import { setup as setupMcpServerInstall } from "./features/mcp-server-install";
 import {
   loadLocalRestAPI,
+  loadLocalRestAPISync,
   loadSmartSearchAPI,
   loadTemplaterAPI,
   type Dependencies,
@@ -41,27 +42,42 @@ export default class McpToolsPlugin extends Plugin {
 
     // Check for required dependencies
     lastValueFrom(loadLocalRestAPI(this)).then((localRestApi) => {
-      this.localRestApi = localRestApi;
-
-      if (!this.localRestApi.api) {
+      if (!localRestApi.api) {
         new Notice(
           `${this.manifest.name}: Local REST API plugin is required but not found. Please install it from the community plugins and restart Obsidian.`,
           0,
         );
         return;
       }
-
-      // Register endpoints
-      this.localRestApi.api
-        .addRoute("/search/smart")
-        .post(this.handleSearchRequest.bind(this));
-
-      this.localRestApi.api
-        .addRoute("/templates/execute")
-        .post(this.handleTemplateExecution.bind(this));
-
+      this.registerWithLocalRestApi();
       logger.info("MCP Tools Plugin loaded");
     });
+
+    // Local REST API forgets extension routes whenever it reloads (update, re-enable),
+    // and fires this event each time it finishes loading. Not in obsidian's typings.
+    this.registerEvent(
+      (this.app.workspace as Events).on("obsidian-local-rest-api:loaded", () =>
+        this.registerWithLocalRestApi(),
+      ),
+    );
+  }
+
+  private registerWithLocalRestApi() {
+    // Always take a fresh handle: one kept from before a reload is stale.
+    // A reload creates a new plugin instance, so skip only if this exact one is done.
+    const restPlugin = this.app.plugins.plugins["obsidian-local-rest-api"];
+    if (!restPlugin || restPlugin === this.localRestApi.plugin) return;
+    const localRestApi = loadLocalRestAPISync(this);
+    if (!localRestApi.api) return;
+    this.localRestApi = localRestApi;
+
+    localRestApi.api
+      .addRoute("/search/smart")
+      .post(this.handleSearchRequest.bind(this));
+
+    localRestApi.api
+      .addRoute("/templates/execute")
+      .post(this.handleTemplateExecution.bind(this));
   }
 
   private async handleTemplateExecution(req: Request, res: Response) {

@@ -4,19 +4,47 @@ import { type } from "arktype";
 import { LocalRestAPI } from "shared";
 
 /**
- * Which PATCH wire format we speak to the Local REST API plugin.
+ * PATCH headers for Local REST API 5.x "raw-content mode" (markdown-patch 2.x): instruction
+ * in headers, raw content in the body. The version header is mandatory — without it 5.x
+ * answers 400 / 40084. We stay off the deprecated 1.x format (sunset in 6.0) because it
+ * glues appended content onto the following heading line; 2.x owns the whitespace.
  *
- * Local REST API 5.x supports two incompatible formats and refuses to guess between them:
- * without this header it answers 400 / errorCode 40084 and every patch tool breaks. (4.x
- * defaulted to the 1.x format, which is why omitting it worked until now.)
- *
- * Stay on "1" — it is the format the code below already speaks: header-driven targeting,
- * `::`-delimited heading paths, content in the body. Version "2" takes heading targets as
- * percent-encoded JSON arrays and *silently ignores* Target-Delimiter and
- * Trim-Target-Whitespace, both of which are exposed as tool parameters here. Moving to "2"
- * is a migration, not a header swap.
+ * 2.x takes heading targets as a percent-encoded JSON array and ignores Target-Delimiter /
+ * Trim-Target-Whitespace, so the tool's `::`-path and trim options are applied here.
  */
-const MARKDOWN_PATCH_VERSION = "1";
+export function patchRequest(
+  args: typeof LocalRestAPI.ApiPatchParameters.infer,
+): RequestInit {
+  const trim = (s: string) => (args.trimTargetWhitespace ? s.trim() : s);
+  let target: string;
+  if (args.targetType === "heading") {
+    const path = args.target.split(args.targetDelimiter || "::").map(trim);
+    target = encodeURIComponent(JSON.stringify(path));
+  } else {
+    // Block ids / frontmatter keys go plain, percent-encoded only if non-ASCII.
+    target = trim(args.target);
+    if (/[^\x20-\x7e]/.test(target)) target = encodeURIComponent(target);
+  }
+
+  const headers: Record<string, string> = {
+    Operation: args.operation,
+    "Target-Type": args.targetType,
+    Target: target,
+    "Markdown-Patch-Version": "2",
+  };
+  if (args.createTargetIfMissing) headers["Create-Target-If-Missing"] = "true";
+
+  // 2.x requires frontmatter values as JSON. 1.x stored a markdown body as a plain string,
+  // so keep that: non-JSON frontmatter content becomes a JSON string.
+  let body = args.content;
+  if (args.targetType === "frontmatter" && args.contentType !== "application/json") {
+    body = JSON.stringify(args.content);
+    headers["Content-Type"] = "application/json";
+  } else if (args.contentType) {
+    headers["Content-Type"] = args.contentType;
+  }
+  return { method: "PATCH", headers, body };
+}
 
 function periodicPath(args: {
   period: string;
@@ -133,34 +161,11 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       "Insert or modify content in the currently-open note relative to a heading, block reference, or frontmatter field.",
     ),
     async ({ arguments: args }) => {
-      const headers: Record<string, string> = {
-        Operation: args.operation,
-        "Target-Type": args.targetType,
-        Target: args.target,
-        "Markdown-Patch-Version": MARKDOWN_PATCH_VERSION,
-      };
-
-      if (args.createTargetIfMissing) {
-        headers["Create-Target-If-Missing"] = "true";
-      }
-      if (args.targetDelimiter) {
-        headers["Target-Delimiter"] = args.targetDelimiter;
-      }
-      if (args.trimTargetWhitespace !== undefined) {
-        headers["Trim-Target-Whitespace"] = String(args.trimTargetWhitespace);
-      }
-      if (args.contentType) {
-        headers["Content-Type"] = args.contentType;
-      }
 
       const response = await makeRequest(
         LocalRestAPI.ApiContentResponse,
         "/active/",
-        {
-          method: "PATCH",
-          headers,
-          body: args.content,
-        },
+        patchRequest(args),
       );
       return {
         content: [
@@ -215,29 +220,26 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
     },
   );
 
-  // POST Search via Dataview or JsonLogic
+  // POST Search via JsonLogic (Local REST API 5.1+ dropped Dataview DQL)
   tools.register(
     type({
       name: '"search_vault"',
       arguments: {
-        queryType: '"dataview" | "jsonlogic"',
-        query: "string",
+        "queryType?": type('"jsonlogic"').describe(
+          'Only "jsonlogic" is supported; Dataview DQL was removed in Local REST API 5.1',
+        ),
+        query: type("string").describe(
+          'A JsonLogic query evaluated against each note (fields: path, content, frontmatter, tags, stat). Supports "glob" and "regexp" operators, e.g. {"glob": ["Projects/*", {"var": "path"}]}',
+        ),
       },
-    }).describe(
-      "Search for documents matching a specified query using either Dataview DQL or JsonLogic.",
-    ),
+    }).describe("Search for documents matching a JsonLogic query."),
     async ({ arguments: args }) => {
-      const contentType =
-        args.queryType === "dataview"
-          ? "application/vnd.olrapi.dataview.dql+txt"
-          : "application/vnd.olrapi.jsonlogic+json";
-
       const data = await makeRequest(
         LocalRestAPI.ApiSearchResponse,
         "/search/",
         {
           method: "POST",
-          headers: { "Content-Type": contentType },
+          headers: { "Content-Type": "application/vnd.olrapi.jsonlogic+json" },
           body: args.query,
         },
       );
@@ -255,11 +257,22 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       arguments: {
         query: "string",
         "contextLength?": "number",
+        "maxResults?": type("number.integer > 0").describe(
+          "Keep only the highest-scoring files (default 20)",
+        ),
+        "maxMatchesPerFile?": type("number.integer > 0").describe(
+          "Keep the first N matches in each file (default 10)",
+        ),
       },
-    }).describe("Search for documents matching a text query."),
+    }).describe(
+      "Search for documents matching a text query. Each word matches separately; results are capped by maxResults/maxMatchesPerFile, and each result's totalMatches shows what was left out.",
+    ),
     async ({ arguments: args }) => {
+      // Uncapped, a common word can return tens of MB (the REST API has no default limit).
       const query = new URLSearchParams({
         query: args.query,
+        maxResults: String(args.maxResults ?? 20),
+        maxMatchesPerFile: String(args.maxMatchesPerFile ?? 10),
         ...(args.contextLength
           ? {
               contextLength: String(args.contextLength),
@@ -399,34 +412,11 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       "Insert or modify content in a file relative to a heading, block reference, or frontmatter field.",
     ),
     async ({ arguments: args }) => {
-      const headers: Record<string, string> = {
-        Operation: args.operation,
-        "Target-Type": args.targetType,
-        Target: args.target,
-        "Markdown-Patch-Version": MARKDOWN_PATCH_VERSION,
-      };
-
-      if (args.createTargetIfMissing) {
-        headers["Create-Target-If-Missing"] = "true";
-      }
-      if (args.targetDelimiter) {
-        headers["Target-Delimiter"] = args.targetDelimiter;
-      }
-      if (args.trimTargetWhitespace !== undefined) {
-        headers["Trim-Target-Whitespace"] = String(args.trimTargetWhitespace);
-      }
-      if (args.contentType) {
-        headers["Content-Type"] = args.contentType;
-      }
 
       const response = await makeRequest(
         LocalRestAPI.ApiContentResponse,
         `/vault/${encodeVaultPath(args.filename)}`,
-        {
-          method: "PATCH",
-          headers,
-          body: args.content,
-        },
+        patchRequest(args),
       );
 
       return {
@@ -552,34 +542,11 @@ export function registerLocalRestApiTools(tools: ToolRegistry, server: Server) {
       "Insert or modify content in a periodic note relative to a heading, block reference, or frontmatter field. When year/month/day are all provided, targets that specific date's note; otherwise targets the current period's note.",
     ),
     async ({ arguments: args }) => {
-      const headers: Record<string, string> = {
-        Operation: args.operation,
-        "Target-Type": args.targetType,
-        Target: args.target,
-        "Markdown-Patch-Version": MARKDOWN_PATCH_VERSION,
-      };
-
-      if (args.createTargetIfMissing) {
-        headers["Create-Target-If-Missing"] = "true";
-      }
-      if (args.targetDelimiter) {
-        headers["Target-Delimiter"] = args.targetDelimiter;
-      }
-      if (args.trimTargetWhitespace !== undefined) {
-        headers["Trim-Target-Whitespace"] = String(args.trimTargetWhitespace);
-      }
-      if (args.contentType) {
-        headers["Content-Type"] = args.contentType;
-      }
 
       const response = await makeRequest(
         LocalRestAPI.ApiContentResponse,
         periodicPath(args),
-        {
-          method: "PATCH",
-          headers,
-          body: args.content,
-        },
+        patchRequest(args),
       );
       return {
         content: [

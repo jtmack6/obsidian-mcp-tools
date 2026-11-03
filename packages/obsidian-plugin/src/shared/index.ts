@@ -135,20 +135,24 @@ export const loadSmartSearchAPI = (plugin: McpToolsPlugin) =>
     distinct(({ installed }) => installed),
   );
 
+export const loadLocalRestAPISync = (
+  plugin: McpToolsPlugin,
+): Dependencies["obsidian-local-rest-api"] => {
+  const api = getAPI(plugin.app, plugin.manifest);
+  return {
+    id: "obsidian-local-rest-api",
+    name: "Local REST API",
+    required: true,
+    installed: !!api,
+    api,
+    plugin: plugin.app.plugins.plugins["obsidian-local-rest-api"],
+  };
+};
+
 export const loadLocalRestAPI = (plugin: McpToolsPlugin) =>
   interval(200).pipe(
     takeUntil(timer(5000)),
-    map((): Dependencies["obsidian-local-rest-api"] => {
-      const api = getAPI(plugin.app, plugin.manifest);
-      return {
-        id: "obsidian-local-rest-api",
-        name: "Local REST API",
-        required: true,
-        installed: !!api,
-        api,
-        plugin: plugin.app.plugins.plugins["obsidian-local-rest-api"],
-      };
-    }),
+    map(() => loadLocalRestAPISync(plugin)),
     takeWhile((dependency) => !dependency.installed, true),
     distinct(({ installed }) => installed),
   );

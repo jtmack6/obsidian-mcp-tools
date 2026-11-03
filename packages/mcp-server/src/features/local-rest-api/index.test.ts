@@ -176,7 +176,8 @@ describe("patch_active_file", () => {
     const headers = lastFetch.init?.headers as Record<string, string>;
     expect(headers.Operation).toBe("append");
     expect(headers["Target-Type"]).toBe("heading");
-    expect(headers.Target).toBe("Section 1");
+    expect(headers.Target).toBe(encodeURIComponent('["Section 1"]'));
+    expect(headers["Markdown-Patch-Version"]).toBe("2");
     expect(headers["Create-Target-If-Missing"]).toBeUndefined();
   });
 
@@ -212,8 +213,56 @@ describe("patch_active_file", () => {
 
     const headers = harness.getLastFetch()!.init?.headers as Record<string, string>;
     expect(headers["Content-Type"]).toBe("application/json");
-    expect(headers["Target-Delimiter"]).toBe("::");
-    expect(headers["Trim-Target-Whitespace"]).toBe("true");
+    expect(headers.Target).toBe("title");
+    // 2.x ignores these headers; delimiter/trim are applied client-side
+    expect(headers["Target-Delimiter"]).toBeUndefined();
+    expect(headers["Trim-Target-Whitespace"]).toBeUndefined();
+  });
+
+  test("splits heading path on delimiter and trims into a JSON array target", async () => {
+    harness.setFetchResponse(
+      mockResponse("patched content", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("patch_active_file", {
+      operation: "append",
+      targetType: "heading",
+      target: "Top | Sub A",
+      targetDelimiter: "|",
+      trimTargetWhitespace: true,
+      content: "x",
+    });
+    const headers = harness.getLastFetch()!.init?.headers as Record<string, string>;
+    expect(JSON.parse(decodeURIComponent(headers.Target))).toEqual(["Top", "Sub A"]);
+  });
+
+  test("sends markdown frontmatter content as a JSON string value", async () => {
+    harness.setFetchResponse(
+      mockResponse("patched content", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("patch_active_file", {
+      operation: "replace",
+      targetType: "frontmatter",
+      target: "status",
+      content: "active",
+    });
+    const init = harness.getLastFetch()!.init!;
+    const headers = init.headers as Record<string, string>;
+    expect(headers["Content-Type"]).toBe("application/json");
+    expect(init.body).toBe('"active"');
+  });
+
+  test("percent-encodes non-ASCII block/frontmatter targets only", async () => {
+    harness.setFetchResponse(
+      mockResponse("patched content", { contentType: "text/markdown" }),
+    );
+    await harness.dispatch("patch_active_file", {
+      operation: "replace",
+      targetType: "frontmatter",
+      target: "título",
+      content: "x",
+    });
+    const headers = harness.getLastFetch()!.init?.headers as Record<string, string>;
+    expect(headers.Target).toBe(encodeURIComponent("título"));
   });
 });
 
@@ -256,20 +305,15 @@ describe("show_file_in_obsidian", () => {
 });
 
 describe("search_vault", () => {
-  test("sends dataview Content-Type for dataview queryType", async () => {
+  test("rejects dataview queryType (removed in Local REST API 5.1)", async () => {
     harness.setFetchResponse(mockResponse(searchResults));
-    await harness.dispatch("search_vault", {
-      queryType: "dataview",
-      query: 'TABLE file.name FROM "notes"',
-    });
-
-    const lastFetch = harness.getLastFetch()!;
-    expect(lastFetch.url).toBe(`${BASE_URL}/search/`);
-    expect(lastFetch.init?.method).toBe("POST");
-    const headers = lastFetch.init?.headers as Record<string, string>;
-    expect(headers["Content-Type"]).toBe(
-      "application/vnd.olrapi.dataview.dql+txt",
-    );
+    await expect(
+      harness.dispatch("search_vault", {
+        queryType: "dataview",
+        query: 'TABLE file.name FROM "notes"',
+      }),
+    ).rejects.toThrow();
+    expect(harness.getFetchCalls().length).toBe(0);
   });
 
   test("sends jsonlogic Content-Type for jsonlogic queryType", async () => {
@@ -294,7 +338,21 @@ describe("search_vault_simple", () => {
     const lastFetch = harness.getLastFetch()!;
     expect(lastFetch.url).toContain("/search/simple/");
     expect(lastFetch.url).toContain("query=hello");
+    expect(lastFetch.url).toContain("maxResults=20");
+    expect(lastFetch.url).toContain("maxMatchesPerFile=10");
     expect(lastFetch.init?.method).toBe("POST");
+  });
+
+  test("passes explicit result limits through", async () => {
+    harness.setFetchResponse(mockResponse(simpleSearchResults));
+    await harness.dispatch("search_vault_simple", {
+      query: "hello",
+      maxResults: 3,
+      maxMatchesPerFile: 1,
+    });
+    const url = harness.getLastFetch()!.url;
+    expect(url).toContain("maxResults=3");
+    expect(url).toContain("maxMatchesPerFile=1");
   });
 
   test("includes contextLength when provided", async () => {
@@ -567,7 +625,7 @@ describe("patch_periodic_note", () => {
     const headers = lastFetch.init?.headers as Record<string, string>;
     expect(headers.Operation).toBe("append");
     expect(headers["Target-Type"]).toBe("heading");
-    expect(headers.Target).toBe("Tasks");
+    expect(headers.Target).toBe(encodeURIComponent('["Tasks"]'));
     expect(headers["Create-Target-If-Missing"]).toBeUndefined();
   });
 
