@@ -94,7 +94,7 @@ src/
 Server binaries are published with SLSA Provenance attestations. To verify a binary:
 
 ```bash
-gh attestation verify --owner jacksteamdev <binary>
+gh attestation verify --owner jtmack6 <binary>
 ```
 
 This verifies:
@@ -133,7 +133,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 For security issues, please:
 
 1. **DO NOT** open a public issue
-2. Email [jacksteamdev+security@gmail.com](mailto:jacksteamdev+security@gmail.com)
+2. Use GitHub private vulnerability reporting (https://github.com/jtmack6/obsidian-mcp-tools/security/advisories/new)
 3. Follow responsible disclosure practices
 
 ## License

@@ -37,7 +37,7 @@ Think before you post. Ask yourself:
 
 2. **Clone and Setup**:
    ```bash
-   git clone https://github.com/jacksteamdev/obsidian-mcp-tools.git
+   git clone https://github.com/jtmack6/obsidian-mcp-tools.git
    cd obsidian-mcp-tools
    bun install
    ```
@@ -54,7 +54,7 @@ Think before you post. Ask yourself:
 ### Documentation Resources
 - **Project architecture**: `/docs/project-architecture.md`
 - **Feature documentation**: `/docs/features/`
-- **AI-generated docs**: [DeepWiki](https://deepwiki.com/jacksteamdev/obsidian-mcp-tools)
+- **AI-generated docs**: [DeepWiki](https://deepwiki.com/jtmack6/obsidian-mcp-tools)
 - **Coding standards**: `.clinerules`
 
 ### Monorepo Structure
@@ -158,8 +158,8 @@ bun test
 
 ### Binary Security
 - All binaries are SLSA-attested and cryptographically signed
-- Use `gh attestation verify --owner jacksteamdev <binary>` to verify integrity
-- Report security issues to [jacksteamdev+security@gmail.com](mailto:jacksteamdev+security@gmail.com)
+- Use `gh attestation verify --owner jtmack6 <binary>` to verify integrity
+- Report security issues to GitHub private vulnerability reporting (https://github.com/jtmack6/obsidian-mcp-tools/security/advisories/new)
 
 ### Development Security
 - **No secrets in code**: Use environment variables for API keys
@@ -169,11 +169,11 @@ bun test
 
 ## Resources
 
-- **GitHub Repository**: [jacksteamdev/obsidian-mcp-tools](https://github.com/jacksteamdev/obsidian-mcp-tools)
+- **GitHub Repository**: [jtmack6/obsidian-mcp-tools](https://github.com/jtmack6/obsidian-mcp-tools)
 - **Discord Community**: [Join here](https://discord.gg/q59pTrN9AA)
-- **Release History**: [GitHub Releases](https://github.com/jacksteamdev/obsidian-mcp-tools/releases)
+- **Release History**: [GitHub Releases](https://github.com/jtmack6/obsidian-mcp-tools/releases)
 - **Security Policy**: [SECURITY.md](SECURITY.md)
-- **AI Documentation**: [DeepWiki](https://deepwiki.com/jacksteamdev/obsidian-mcp-tools)
+- **AI Documentation**: [DeepWiki](https://deepwiki.com/jtmack6/obsidian-mcp-tools)
 
 ## Questions?
 

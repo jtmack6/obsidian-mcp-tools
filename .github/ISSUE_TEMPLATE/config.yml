@@ -4,8 +4,8 @@ contact_links:
     url: https://discord.gg/q59pTrN9AA
     about: Join our Discord for questions, discussions, and community support
   - name: 📖 Contributing Guidelines  
-    url: https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/CONTRIBUTING.md
+    url: https://github.com/jtmack6/obsidian-mcp-tools/blob/main/CONTRIBUTING.md
     about: Read our community standards and development guidelines before posting
   - name: 🔒 Security Issues
-    url: https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/SECURITY.md
+    url: https://github.com/jtmack6/obsidian-mcp-tools/blob/main/SECURITY.md
     about: Report security vulnerabilities privately via email

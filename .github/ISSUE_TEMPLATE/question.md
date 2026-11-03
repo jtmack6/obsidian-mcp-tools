@@ -23,7 +23,7 @@ Discord is for:
 💬 General discussions
 💬 Community support
 
-READ: https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/CONTRIBUTING.md
+READ: https://github.com/jtmack6/obsidian-mcp-tools/blob/main/CONTRIBUTING.md
 -->
 
 ## Please Use Discord Instead
@@ -40,10 +40,10 @@ READ: https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/CONTRIBUTING.
 
 ## Before Posting Anywhere
 **Please check these resources first:**
-- 📖 [README](https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/README.md) - Setup and usage instructions
-- 🏗️ [DeepWiki](https://deepwiki.com/jacksteamdev/obsidian-mcp-tools) - AI-generated documentation
-- 🔒 [Security](https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/SECURITY.md) - Binary verification and security info
-- 📋 [Contributing](https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/CONTRIBUTING.md) - Community standards
+- 📖 [README](https://github.com/jtmack6/obsidian-mcp-tools/blob/main/README.md) - Setup and usage instructions
+- 🏗️ [DeepWiki](https://deepwiki.com/jtmack6/obsidian-mcp-tools) - AI-generated documentation
+- 🔒 [Security](https://github.com/jtmack6/obsidian-mcp-tools/blob/main/SECURITY.md) - Binary verification and security info
+- 📋 [Contributing](https://github.com/jtmack6/obsidian-mcp-tools/blob/main/CONTRIBUTING.md) - Community standards
 
 ---
 **Remember**: Be respectful when asking for help. We're all volunteers here.

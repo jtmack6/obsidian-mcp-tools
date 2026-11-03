@@ -1,8 +1,8 @@
 # MCP Tools for Obsidian
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/jacksteamdev/obsidian-mcp-tools)](https://github.com/jacksteamdev/obsidian-mcp-tools/releases/latest)
-[![Build status](https://img.shields.io/github/actions/workflow/status/jacksteamdev/obsidian-mcp-tools/release.yml)](https://github.com/jacksteamdev/obsidian-mcp-tools/actions)
-[![License](https://img.shields.io/github/license/jacksteamdev/obsidian-mcp-tools)](LICENSE)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/jtmack6/obsidian-mcp-tools)](https://github.com/jtmack6/obsidian-mcp-tools/releases/latest)
+[![Build status](https://img.shields.io/github/actions/workflow/status/jtmack6/obsidian-mcp-tools/release.yml)](https://github.com/jtmack6/obsidian-mcp-tools/actions)
+[![License](https://img.shields.io/github/license/jtmack6/obsidian-mcp-tools)](LICENSE)
 
 [Features](#features) | [Installation](#installation) | [Configuration](#configuration) | [Troubleshooting](#troubleshooting) | [Security](#security) | [Development](#development) | [Support](#support)
 
@@ -65,7 +65,7 @@ Clicking the install button will:
 
 ### Installation Locations
 
-- **Server Binary**: {vault}/.obsidian/plugins/obsidian-mcp-tools/bin/
+- **Server Binary**: {vault}/.obsidian/plugins/mcp-mctools/bin/
 - **Log Files**:
   - macOS: ~/Library/Logs/obsidian-mcp-tools
   - Windows: %APPDATA%\obsidian-mcp-tools\logs
@@ -134,7 +134,7 @@ To verify a binary using the GitHub CLI:
 
 2. Verify the binary:
    ```bash
-   gh attestation verify --owner jacksteamdev <binary path or URL>
+   gh attestation verify --owner jtmack6 <binary path or URL>
    ```
 
 The verification will show:
@@ -208,13 +208,13 @@ We welcome genuine contributions but maintain strict community standards. Be res
 ## Support
 
 - 💬 [Join our Discord](https://discord.gg/q59pTrN9AA) for questions, discussions, and community support
-- [Open an issue](https://github.com/jacksteamdev/obsidian-mcp-tools/issues) for bug reports and feature requests
+- [Open an issue](https://github.com/jtmack6/obsidian-mcp-tools/issues) for bug reports and feature requests
 
 **Please read our [Contributing Guidelines](CONTRIBUTING.md) before posting.** We maintain high community standards and have zero tolerance for toxic behavior.
 
 ## Changelog
 
-See [GitHub Releases](https://github.com/jacksteamdev/obsidian-mcp-tools/releases) for detailed changelog information.
+See [GitHub Releases](https://github.com/jtmack6/obsidian-mcp-tools/releases) for detailed changelog information.
 
 ## License
 

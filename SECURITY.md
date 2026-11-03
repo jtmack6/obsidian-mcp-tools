@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-The MCP Tools for Obsidian team takes security vulnerabilities seriously. If you discover a security issue, please report it by emailing [jacksteamdev+security@gmail.com]. 
+The MCP Tools for Obsidian team takes security vulnerabilities seriously. If you discover a security issue, please report it via GitHub private vulnerability reporting (https://github.com/jtmack6/obsidian-mcp-tools/security/advisories/new). 
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
@@ -30,7 +30,7 @@ MCP Tools for Obsidian uses several measures to ensure secure binary distributio
 2. **Reproducible Builds**: Our build process is deterministic and can be reproduced from source
 3. **Verification**: Users can verify binary authenticity using:
    ```bash
-   gh attestation verify --owner jacksteamdev <binary_path>
+   gh attestation verify --owner jtmack6 <binary_path>
    ```
 
 ## Runtime Security Model

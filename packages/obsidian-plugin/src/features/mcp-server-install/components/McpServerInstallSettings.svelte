@@ -195,7 +195,7 @@
 
   <div class="link-item">
     <a
-      href="https://github.com/jacksteamdev/obsidian-mcp-tools"
+      href="https://github.com/jtmack6/obsidian-mcp-tools"
       target="_blank"
     >
       GitHub repository

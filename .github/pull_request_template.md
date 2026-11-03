@@ -1,5 +1,5 @@
 <!-- 
-🚨 READ FIRST: https://github.com/jacksteamdev/obsidian-mcp-tools/blob/main/CONTRIBUTING.md
+🚨 READ FIRST: https://github.com/jtmack6/obsidian-mcp-tools/blob/main/CONTRIBUTING.md
 
 This is a FREE project maintained by volunteers. Be respectful and patient.
 Rude, demanding, or entitled behavior results in immediate bans.

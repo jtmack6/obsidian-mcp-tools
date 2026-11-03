@@ -1,11 +1,10 @@
 {
-  "id": "mcp-tools",
+  "id": "mcp-mctools",
   "name": "MCP Tools (jtmack fork)",
   "version": "0.2.34",
   "minAppVersion": "0.15.0",
   "description": "Securely connect Claude Desktop to your vault with semantic search, templates, and file management capabilities.",
-  "author": "Jack Steam",
-  "authorUrl": "https://github.com/jacksteamdev",
-  "fundingUrl": "https://github.com/sponsors/jacksteamdev",
+  "author": "Jim Mack",
+  "authorUrl": "https://github.com/jtmack6",
   "isDesktopOnly": true
 }
